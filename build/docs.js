@@ -40,7 +40,7 @@ function getRepo (addr, branch) {
         // if it didn't exist, ignore.
         .catch({ code: 'ENOENT' }, () => { /* do nothing */ })
         .then(stats => {
-            if (stats && !stats.isSymbolicLink()) {
+            if (!stats || !stats.isSymbolicLink()) {
                 return fs.symlinkAsync(path.join(__dirname, '../', config.repos[name]), target);
             }
         });
@@ -151,6 +151,7 @@ function transverseTypes (ramlObj) {
     const newTypes = {};
     ramlObj.types.forEach(type => _.assign(newTypes, type));
     ramlObj.types = orderObject(newTypes);
+    ramlObj.types = _.omitBy(ramlObj.types, type => type.annotations && type.annotations.internal);
 
     return ramlObj;
 }
